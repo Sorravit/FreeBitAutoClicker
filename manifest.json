@@ -1,0 +1,6 @@
+{
+  "name": "FreeBit Auto Click",
+  "description": "Auto roll in freebitco.in website every hour",
+  "version": "1.0",
+  "manifest_version": 3
+}
