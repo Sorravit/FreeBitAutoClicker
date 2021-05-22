@@ -1,35 +1,30 @@
 // Initialize button with user's preferred color
-let changeColor = document.getElementById("changeColor");
-let sendMessage = document.getElementById("sendMessage");
+let startAutoClick = document.getElementById("startAutoClick");
+let stopAutoClick = document.getElementById("stopAutoClick");
 
-chrome.storage.sync.get("color", ({color}) => {
-  changeColor.style.backgroundColor = color;
-});
 
-// When the button is clicked, inject setPageBackgroundColor into current page
-changeColor.addEventListener("click", async () => {
-  let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-
-  chrome.scripting.executeScript({
-    target: {tabId: tab.id},
-    function: setPageBackgroundColor,
-  });
-});
-
-function setPageBackgroundColor() {
-  console.log("Change Color");
-  chrome.storage.sync.get("color", ({color}) => {
-    document.body.style.backgroundColor = color;
-  });
-}
-
-sendMessage.addEventListener("click", async () => {
+startAutoClick.addEventListener("click", async () => {
   let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
   chrome.scripting.executeScript({
     target: {tabId: tab.id},
     function: sendTabID,
   });
 });
+
+stopAutoClick.addEventListener("click", async () => {
+  let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
+  chrome.scripting.executeScript({
+    target: {tabId: tab.id},
+    function: sendDeleteAlarmCommand,
+  });
+});
+function sendDeleteAlarmCommand() {
+  console.log("Sending Delete Alarm Command")
+  chrome.runtime.sendMessage("DeleteAlarm", (response => {
+    console.log("Response :", response)
+  }))
+}
+
 
 function sendTabID() {
   console.log("Sending tabID")

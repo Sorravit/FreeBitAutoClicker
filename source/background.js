@@ -36,6 +36,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       function: clickButton,
     });
     sendResponse("TabId received")
+  } else if (message === 'DeleteAlarm') {
+    chrome.alarms.clear("ClickButton");
+    sendResponse("Alarm Deleted")
   }
 });
 
