@@ -4,24 +4,38 @@ chrome.runtime.onInstalled.addListener(() => {
   let timeToWait = 10 / 60
   chrome.storage.sync.set({timeToWait});
 });
-chrome.alarms.onAlarm.addListener(function (alarm) {
-  console.log(alarm.name)
-  if (alarm.name === "ClickButton") {
-    chrome.storage.sync.get("tabID", ({tabID}) => {
-      console.log("Auto click on tab ", tabID)
-      chrome.scripting.executeScript({
-        target: {tabId: tabID},
-        function: clickButton,
-      });
-    });
-    chrome.storage.sync.get("timeToWait", ({timeToWait}) => {
-      let now = new Date();
-      console.log("Reset Alarm at:", now.toUTCString())
-      console.log("TiMe To WaIt:",timeToWait)
-      chrome.alarms.create("ClickButton", {periodInMinutes: timeToWait})
+
+function storageSyncGetAsync(key) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(key, (items) => {
+      return resolve(items)
     })
+  })
+}
+
+function executeScriptAsync(options) {
+  return new Promise((resolve, reject) => {
+    chrome.scripting.executeScript(options, (res) => {
+      return resolve()
+    })
+  })
+}
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === 'ClickButton') {
+    const {tabID} = await storageSyncGetAsync('tabID')
+    await executeScriptAsync({
+      target: {tabId: tabID},
+      function: clickButton,
+    })
+    const {timeToWait} = await storageSyncGetAsync('timeToWait')
+    let now = new Date();
+    console.log('Reset Alarm at:', now.toUTCString())
+    console.log('TiMe To WaIt:', timeToWait)
+    await chrome.alarms.create('ClickButton', {periodInMinutes: timeToWait})
   }
 })
+
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Get message '", message, "' from tab id ", sender.tab.id);
