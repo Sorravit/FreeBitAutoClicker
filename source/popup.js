@@ -21,9 +21,6 @@ function setPageBackgroundColor() {
   chrome.storage.sync.get("color", ({color}) => {
     document.body.style.backgroundColor = color;
   });
-  chrome.runtime.sendMessage("messageNaja", (response => {
-    console.log("Got ", response, " as a response")
-  }))
 }
 
 sendMessage.addEventListener("click", async () => {
@@ -35,8 +32,9 @@ sendMessage.addEventListener("click", async () => {
 });
 
 function sendTabID() {
+  console.log("Sending tabID")
   chrome.runtime.sendMessage("tabID", (response => {
-    console.log("Got ", response, " as a response")
+    console.log("Response :", response)
   }))
 }
 

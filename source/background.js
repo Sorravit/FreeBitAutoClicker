@@ -12,32 +12,23 @@ chrome.alarms.onAlarm.addListener(function (alarm) {
   console.log(now.toUTCString());
 })
 
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log(message)
-  console.log(sender)
-  console.log("sent from tab.id=", sender.tab.id);
-  if (message === 'messageNaja') {
-    sendResponse("Hello");
-  }
-  if (message==='tabID'){
+  console.log("Get message '", message, "' from tab id ", sender.tab.id);
+  if (message === 'tabID') {
     console.log("Getting tabID from tab")
-    console.log(sender.tab)
-    console.log(sender.id)
-    console.log(sender.url)
     chrome.scripting.executeScript({
-      target: {tabId:sender.tab.id},
+      target: {tabId: sender.tab.id},
       function: clickButton,
     });
-    sendResponse("Id received")
+    sendResponse("TabId received")
   }
 });
 
-function callFromBackground(){
+function callFromBackground() {
   console.log("This function was called from the background serviceWorker and is written in background")
 }
 
-function clickButton(){
+function clickButton() {
   const button = document.getElementById("clickMe");
   button.click();
 }
