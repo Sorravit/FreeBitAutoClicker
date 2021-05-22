@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log(sender.url)
     chrome.scripting.executeScript({
       target: {tabId:sender.tab.id},
-      function: callFromBackground,
+      function: clickButton,
     });
     sendResponse("Id received")
   }
@@ -35,4 +35,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 function callFromBackground(){
   console.log("This function was called from the background serviceWorker and is written in background")
+}
+
+function clickButton(){
+  const button = document.getElementById("clickMe");
+  button.click();
 }
