@@ -31,6 +31,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function clickButton() {
-  const button = document.getElementById("clickMe");
-  button.click();
+  //checkButtonVisibility
+  let button = document.getElementById("free_play_form_button");
+  if (button.offsetLeft) {
+    //Button is visible
+    button.click()
+    chrome.alarms.create("ClickButton", {periodInMinutes: 60+(10/60)})
+  }else{
+    //Check remaining time and wait for it
+    let timeString = document.getElementById("time_remaining").innerText.split("\n");
+    let timeToWait = parseInt(timeString[0])+parseInt(timeString[2])/60 + 10/60
+    chrome.alarms.create("ClickButton", {periodInMinutes: 60+(10/60)})
+  }
 }
