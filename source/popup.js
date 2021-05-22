@@ -1,13 +1,11 @@
-// Initialize button with user's preferred color
 let startAutoClick = document.getElementById("startAutoClick");
 let stopAutoClick = document.getElementById("stopAutoClick");
-
 
 startAutoClick.addEventListener("click", async () => {
   let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
   chrome.scripting.executeScript({
     target: {tabId: tab.id},
-    function: sendTabID,
+    function: sendStartAutoClickCommand,
   });
 });
 
@@ -18,17 +16,17 @@ stopAutoClick.addEventListener("click", async () => {
     function: sendDeleteAlarmCommand,
   });
 });
+
 function sendDeleteAlarmCommand() {
   console.log("Sending Delete Alarm Command")
-  chrome.runtime.sendMessage("DeleteAlarm", (response => {
+  chrome.runtime.sendMessage("StopAutoClick", (response => {
     console.log("Response :", response)
   }))
 }
 
-
-function sendTabID() {
-  console.log("Sending tabID")
-  chrome.runtime.sendMessage("tabID", (response => {
+function sendStartAutoClickCommand() {
+  console.log("Sending tabID to start Auto Click")
+  chrome.runtime.sendMessage("StartAutoClick", (response => {
     console.log("Response :", response)
   }))
 }

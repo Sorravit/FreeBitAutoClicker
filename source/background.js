@@ -1,53 +1,36 @@
-let color = '#3aa757';
+console.log("Starting Service Worker")
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({color});
-  console.log('Default background color set to %cgreen', `color: ${color}`);
-});
-console.log("HELLO")
-chrome.alarms.create("SimpleLog", {periodInMinutes: 10 / 60})
 chrome.alarms.onAlarm.addListener(function (alarm) {
   console.log(alarm.name)
-  if (alarm.name === "SimpleLog") {
-    console.log("Logging because it's a simple log alarm")
-    const now = new Date();
-    console.log(now.toUTCString());
-  } else if (alarm.name === "ClickButton") {
+  if (alarm.name === "ClickButton") {
     chrome.storage.sync.get("tabID", ({tabID}) => {
+      console.log("Auto click on tab ", tabID)
       chrome.scripting.executeScript({
         target: {tabId: tabID},
         function: clickButton,
       });
     });
-
   }
 })
 
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Get message '", message, "' from tab id ", sender.tab.id);
-  if (message === 'tabID') {
-    console.log("Getting tabID from tab")
+  if (message === 'StartAutoClick') {
     const tabID = sender.tab.id
-    chrome.storage.sync.set({tabID});
+    chrome.storage.sync.set({startAutoClickAlarm: tabID});
     chrome.alarms.create("ClickButton", {periodInMinutes: 10 / 60})
     chrome.scripting.executeScript({
       target: {tabId: tabID},
       function: clickButton,
     });
-    sendResponse("TabId received")
-  } else if (message === 'DeleteAlarm') {
+    sendResponse("TabId received, Commencing Auto click process")
+  } else if (message === 'StopAutoClick') {
     chrome.alarms.clear("ClickButton");
-    sendResponse("Alarm Deleted")
+    sendResponse("Auto click process terminated")
   }
 });
-
-function callFromBackground() {
-  console.log("This function was called from the background serviceWorker and is written in background")
-}
 
 function clickButton() {
   const button = document.getElementById("clickMe");
   button.click();
-
 }
