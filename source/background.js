@@ -59,6 +59,20 @@ function clickButton() {
   let button = document.getElementById("free_play_form_button");
   if (button.offsetLeft) {
     //Button is visible
+    //Make decision about captcha
+    chrome.storage.sync.get("haveCaptcha", data => {
+      if (data.haveCaptcha === "true") {
+        console.log("Clicking on play without Captcha")
+        let captchaButton = document.getElementById("play_without_captchas_button")
+        if (captchaButton) {
+          captchaButton.click()
+          console.log("Clicked on play without Captcha")
+        }
+      } else {
+        console.log("You have no captcha to worry about")
+      }
+    });
+    //Click the roll button
     button.click()
     let now = new Date();
     console.log("Clicked Free roll at:", now.toUTCString())
