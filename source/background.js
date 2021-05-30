@@ -79,12 +79,20 @@ function clickButton() {
     let timeToWait = 60 + (10 / 60)
     chrome.storage.sync.set({timeToWait});
   } else {
-    //Check remaining time and wait for it
-    let timeString = document.getElementById("time_remaining").innerText.split("\n");
-    let timeToWait = parseInt(timeString[0]) + parseInt(timeString[2]) / 60 + 10 / 60
-    let now = new Date();
-    console.log("Unable to Click free roll at:", now.toUTCString())
-    console.log("timeToWait:", timeToWait)
-    chrome.storage.sync.set({timeToWait});
+    try {
+      //Check remaining time and wait for it
+      let timeString = document.getElementById("time_remaining").innerText.split("\n");
+      let timeToWait = parseInt(timeString[0]) + parseInt(timeString[2]) / 60 + 10 / 60
+      let now = new Date();
+      console.log("Unable to Click free roll at:", now.toUTCString())
+      console.log("timeToWait:", timeToWait)
+      chrome.storage.sync.set({timeToWait});
+    } catch (e) {
+      console.log(e)
+      console.log("Something's wrong, wait 10 sec and try again")
+      let timeToWait = 10 / 60
+      console.log("timeToWait:", timeToWait)
+      chrome.storage.sync.set({timeToWait});
+    }
   }
 }
