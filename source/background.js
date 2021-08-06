@@ -1,8 +1,8 @@
 console.log("Starting Service Worker")
 
 chrome.runtime.onInstalled.addListener(() => {
-  let timeToWait = 10 / 60
-  chrome.storage.sync.set({timeToWait});
+  let timeToWaitForFreeRoll = 10 / 60
+  chrome.storage.sync.set({timeToWaitForFreeRoll});
 });
 
 function storageSyncGetAsync(key) {
@@ -22,17 +22,17 @@ function executeScriptAsync(options) {
 }
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name === 'ClickButton') {
+  if (alarm.name === 'ClickFreeRollButton') {
     const {tabID} = await storageSyncGetAsync('tabID')
     await executeScriptAsync({
       target: {tabId: tabID},
-      function: clickButton,
+      function: clickFreeRollButton,
     })
-    const {timeToWait} = await storageSyncGetAsync('timeToWait')
+    const {timeToWaitForFreeRoll} = await storageSyncGetAsync('timeToWaitForFreeRoll')
     let now = new Date();
     console.log('Reset Alarm at:', now.toUTCString())
-    console.log('TiMe To WaIt:', timeToWait)
-    await chrome.alarms.create('ClickButton', {periodInMinutes: timeToWait})
+    console.log('TiMe To WaIt FoR fReE rOlL:', timeToWaitForFreeRoll)
+    await chrome.alarms.create('ClickFreeRollButton', {periodInMinutes: timeToWaitForFreeRoll})
   }
 })
 
@@ -42,19 +42,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message === 'StartAutoClick') {
     const tabID = sender.tab.id
     chrome.storage.sync.set({tabID});
-    chrome.alarms.create("ClickButton", {periodInMinutes: 10 / 60})
+    chrome.alarms.create("ClickFreeRollButton", {periodInMinutes: 10 / 60})
     chrome.scripting.executeScript({
       target: {tabId: tabID},
-      function: clickButton,
+      function: clickFreeRollButton,
     });
     sendResponse("TabId received, Commencing Auto click process")
   } else if (message === 'StopAutoClick') {
-    chrome.alarms.clear("ClickButton");
+    chrome.alarms.clear("ClickFreeRollButton");
     sendResponse("Auto click process terminated")
   }
 });
 
-function clickButton() {
+function clickFreeRollButton() {
   //checkButtonVisibility
   let button = document.getElementById("free_play_form_button");
   if (button.offsetLeft) {
@@ -76,23 +76,23 @@ function clickButton() {
     button.click()
     let now = new Date();
     console.log("Clicked Free roll at:", now.toUTCString())
-    let timeToWait = 60 + (10 / 60)
-    chrome.storage.sync.set({timeToWait});
+    let timeToWaitForFreeRoll = 60 + (10 / 60)
+    chrome.storage.sync.set({timeToWaitForFreeRoll});
   } else {
     try {
       //Check remaining time and wait for it
       let timeString = document.getElementById("time_remaining").innerText.split("\n");
-      let timeToWait = parseInt(timeString[0]) + parseInt(timeString[2]) / 60 + 10 / 60
+      let timeToWaitForFreeRoll = parseInt(timeString[0]) + parseInt(timeString[2]) / 60 + 10 / 60
       let now = new Date();
       console.log("Unable to Click free roll at:", now.toUTCString())
-      console.log("timeToWait:", timeToWait)
-      chrome.storage.sync.set({timeToWait});
+      console.log("timeToWaitForFreeRoll:", timeToWaitForFreeRoll)
+      chrome.storage.sync.set({timeToWaitForFreeRoll});
     } catch (e) {
       console.log(e)
       console.log("Something's wrong, wait 10 sec and try again")
-      let timeToWait = 10 / 60
-      console.log("timeToWait:", timeToWait)
-      chrome.storage.sync.set({timeToWait});
+      let timeToWaitForFreeRoll = 10 / 60
+      console.log("timeToWaitForFreeRoll:", timeToWaitForFreeRoll)
+      chrome.storage.sync.set({timeToWaitForFreeRoll});
     }
   }
 }
