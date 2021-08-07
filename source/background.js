@@ -122,60 +122,6 @@ function clickFreeRollButton() {
   }
 }
 
-function gotoRewardPageAndActuallyClickOnRewardPointMultiplierThenGoBackToFreeRollPage() {
-  async function delay(callback, timer) {
-    return new Promise(function (resolve, reject) {
-      setTimeout(function () {
-        return resolve(callback())
-      }, timer)
-    })
-  }
-
-  async function wait(callback, timer) {
-    return new Promise(function (resolve, reject) {
-      let interval = setInterval(function () {
-        if (callback()) {
-          console.log("BBBBBBBBBBBBBB")
-          clearInterval(interval)
-          return resolve()
-        }
-      }, timer)
-    })
-  }
-
-  function getElem(className, index) {
-    return document.getElementsByClassName(className)[index]
-  }
-
-  function isButtonLoad() {
-    return Boolean(getElem('reward_link_redeem_button_style', 75))
-  }
-
-  async function run() {
-    console.log("Going to reward page")
-    await delay(function () {
-      getElem('rewards_link', 0).click()
-    }, 1000)
-    console.log("Get reward multiplier drop down")
-    await delay(function () {
-      getElem("reward_category_name", 5).click()
-    }, 1000)
-    console.log("Wait for the * 100 multiplier to apper and click it")
-    await wait(isButtonLoad, 1000)
-    if (getElem("reward_link_redeem_button_style", 75).attributes.onclick.value.includes("RedeemRPProduct('free_points_100')")) {
-      console.log("Clicking on the reward multiplier ")
-      await delay(function () {
-        getElem("reward_link_redeem_button_style", 75).click()
-      }, 1000)
-    }
-    console.log("Going back to free roll page")
-    await delay(function () {
-      getElem("free_play_link", 0).click()
-    }, 1000)
-  }
-  run().then()
-}
-
 function activateRewardPointMultiplier() {
   //check for reward point count down
   let rewardPointsCountdown = document.getElementById("bonus_span_free_points")
@@ -191,7 +137,57 @@ function activateRewardPointMultiplier() {
     console.log("Time to wait for nex reward activation = " + timeToWaitForRewardMultiplier)
     chrome.storage.sync.set({timeToWaitForRewardMultiplier});
   } else {
-    gotoRewardPageAndActuallyClickOnRewardPointMultiplierThenGoBackToFreeRollPage()
+    async function delay(callback, timer) {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          return resolve(callback())
+        }, timer)
+      })
+    }
+
+    async function wait(callback, timer) {
+      return new Promise(function (resolve, reject) {
+        let interval = setInterval(function () {
+          if (callback()) {
+            clearInterval(interval)
+            return resolve()
+          }
+        }, timer)
+      })
+    }
+
+    function getElem(className, index) {
+      return document.getElementsByClassName(className)[index]
+    }
+
+    function isButtonLoad() {
+      return Boolean(getElem('reward_link_redeem_button_style', 75))
+    }
+
+    async function run() {
+      console.log("Going to reward page")
+      await delay(function () {
+        getElem('rewards_link', 0).click()
+      }, 1000)
+      console.log("Get reward multiplier drop down")
+      await delay(function () {
+        getElem("reward_category_name", 5).click()
+      }, 1000)
+      console.log("Wait for the * 100 multiplier to apper and click it")
+      await wait(isButtonLoad, 1000)
+      if (getElem("reward_link_redeem_button_style", 75).attributes.onclick.value.includes("RedeemRPProduct('free_points_100')")) {
+        console.log("Clicking on the reward multiplier ")
+        await delay(function () {
+          getElem("reward_link_redeem_button_style", 75).click()
+        }, 1000)
+      }
+      console.log("Going back to free roll page")
+      await delay(function () {
+        getElem("free_play_link", 0).click()
+      }, 1000)
+    }
+
+    run().then()
     let now = new Date();
     console.log("Redeem Reward Multiplier at : ", now.toUTCString())
     let timeToWaitForRewardMultiplier = 24 * 60 + (10 / 60)
