@@ -109,7 +109,12 @@ function clickFreeRollButton() {
       let timeString = document.getElementById("time_remaining").innerText.split("\n");
       let timeToWaitForFreeRoll = parseInt(timeString[0]) + parseInt(timeString[2]) / 60 + 10 / 60
       let now = new Date();
-      console.log("Unable to Click free roll at:", now.toUTCString())
+      if (isNaN(timeToWaitForFreeRoll)) {
+        console.log("timeToWaitForFreeRoll:", timeToWaitForFreeRoll)
+        console.log("Fixing NaN issue")
+        timeToWaitForFreeRoll = 10 / 60
+      }
+      console.log("Unable to Click free roll at:", now.toUTCString());
       console.log("timeToWaitForFreeRoll:", timeToWaitForFreeRoll)
       chrome.storage.sync.set({timeToWaitForFreeRoll});
     } catch (e) {
