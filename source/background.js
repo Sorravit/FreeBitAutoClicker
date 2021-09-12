@@ -130,18 +130,22 @@ function clickFreeRollButton() {
 function activateRewardPointMultiplier() {
   //check for reward point count down
   let rewardPointsCountdown = document.getElementById("bonus_span_free_points")
+  let click = true
   if (rewardPointsCountdown) {
     let rewardPointsCountdownTime = rewardPointsCountdown.innerText.split(":");
     let timeToWaitForRewardMultiplier = 0;
     timeToWaitForRewardMultiplier += parseInt(rewardPointsCountdownTime[0].replace(/\D/g, '')) * 60
     timeToWaitForRewardMultiplier += parseInt(rewardPointsCountdownTime[1].replace(/\D/g, ''))
     timeToWaitForRewardMultiplier += parseInt(rewardPointsCountdownTime[2].replace(/\D/g, '')) / 60
+    // timeToWaitForRewardMultiplier will be 0 when it's time out but the page is not refreshed yet
+    click = timeToWaitForRewardMultiplier === 0
     timeToWaitForRewardMultiplier += (10 / 60)
     let now = new Date();
     console.log("Reward Multiplier is already activated at:", now.toUTCString())
-    console.log("Time to wait for nex reward activation = " + timeToWaitForRewardMultiplier)
+    console.log("Time to wait for next reward activation = " + timeToWaitForRewardMultiplier)
     chrome.storage.sync.set({timeToWaitForRewardMultiplier});
-  } else {
+  }
+  if (click) {
     async function delay(callback, timer) {
       return new Promise(function (resolve, reject) {
         setTimeout(function () {
