@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 function storageSyncGetAsync(key) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     chrome.storage.sync.get(key, (items) => {
       return resolve(items)
     })
@@ -16,8 +16,8 @@ function storageSyncGetAsync(key) {
 }
 
 function executeScriptAsync(options) {
-  return new Promise((resolve, reject) => {
-    chrome.scripting.executeScript(options, (res) => {
+  return new Promise((resolve) => {
+    chrome.scripting.executeScript(options, () => {
       return resolve()
     })
   })
@@ -147,7 +147,7 @@ function activateRewardPointMultiplier() {
   }
   if (click) {
     async function delay(callback, timer) {
-      return new Promise(function (resolve, reject) {
+      return new Promise(function (resolve) {
         setTimeout(function () {
           return resolve(callback())
         }, timer)
@@ -155,7 +155,7 @@ function activateRewardPointMultiplier() {
     }
 
     async function wait(callback, timer) {
-      return new Promise(function (resolve, reject) {
+      return new Promise(function (resolve) {
         let interval = setInterval(function () {
           if (callback()) {
             clearInterval(interval)
@@ -182,7 +182,7 @@ function activateRewardPointMultiplier() {
       await delay(function () {
         getElem("reward_category_name", 5).click()
       }, 1000)
-      console.log("Wait for the * 100 multiplier to apper and click it")
+      console.log("Wait for the * 100 multiplier to appear and click it")
       await wait(isButtonLoad, 1000)
       if (getElem("reward_link_redeem_button_style", 75).attributes.onclick.value.includes("RedeemRPProduct('free_points_100')")) {
         console.log("Clicking on the reward multiplier ")
