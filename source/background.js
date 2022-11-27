@@ -45,7 +45,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     console.log('Reset reward multiplier at:', now.toUTCString())
     console.log('TiMe To WaIt FoR rEwArD mUlTiPlIeR:', timeToWaitForRewardMultiplier)
     await chrome.alarms.create('ActivateRewardMultiplier', {periodInMinutes: timeToWaitForRewardMultiplier})
-
   }
 })
 
@@ -117,6 +116,10 @@ function clickFreeRollButton() {
         console.log("timeToWaitForFreeRoll:", timeToWaitForFreeRoll)
         console.log("Fixing NaN issue")
         timeToWaitForFreeRoll = 10 / 60
+        console.log("Send ReloadTab command")
+        chrome.runtime.sendMessage("ReloadTab", (response => {
+          console.log("Response :", response)
+        }))
       }
       console.log("Unable to Click free roll at:", now.toUTCString());
       console.log("timeToWaitForFreeRoll:", timeToWaitForFreeRoll)
