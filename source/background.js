@@ -76,6 +76,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message === 'StopAutoReward') {
     chrome.alarms.clear("ActivateRewardMultiplier");
     sendResponse("Auto Reward multiplier process terminated")
+  } else if (message === 'ReloadTab') {
+    const tabID = sender.tab.id
+    chrome.tabs.reload(tabID);
+    sendResponse("Tab Reloaded")
   }
 });
 
