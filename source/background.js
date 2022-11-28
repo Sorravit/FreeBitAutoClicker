@@ -2,9 +2,7 @@ console.log("Starting Service Worker")
 
 chrome.runtime.onInstalled.addListener(() => {
   let timeToWaitForFreeRoll = 10 / 60
-  let timeToWaitForRewardMultiplier = 10 / 60
   chrome.storage.sync.set({timeToWaitForFreeRoll});
-  chrome.storage.sync.set({timeToWaitForRewardMultiplier});
 });
 
 function storageSyncGetAsync(key) {
@@ -35,16 +33,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     console.log('Reset free roll Alarm at:', now.toUTCString())
     console.log('TiMe To WaIt FoR fReE rOlL:', timeToWaitForFreeRoll)
     await chrome.alarms.create('ClickFreeRollButton', {periodInMinutes: timeToWaitForFreeRoll})
-  } else if (alarm.name === 'ActivateRewardMultiplier') {
-    await executeScriptAsync({
-      target: {tabId: tabID},
-      function: activateRewardPointMultiplier,
-    })
-    const {timeToWaitForRewardMultiplier} = await storageSyncGetAsync('timeToWaitForRewardMultiplier')
-    let now = new Date();
-    console.log('Reset reward multiplier at:', now.toUTCString())
-    console.log('TiMe To WaIt FoR rEwArD mUlTiPlIeR:', timeToWaitForRewardMultiplier)
-    await chrome.alarms.create('ActivateRewardMultiplier', {periodInMinutes: timeToWaitForRewardMultiplier})
   }
 })
 
@@ -63,18 +51,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message === 'StopAutoClick') {
     chrome.alarms.clear("ClickFreeRollButton");
     sendResponse("Auto click process terminated")
-  } else if (message === 'StartAutoReward') {
-    const tabID = sender.tab.id
-    chrome.storage.sync.set({tabID});
-    chrome.alarms.create("ActivateRewardMultiplier", {periodInMinutes: 10 / 60})
-    chrome.scripting.executeScript({
-      target: {tabId: tabID},
-      function: activateRewardPointMultiplier,
-    });
-    sendResponse("Commencing Auto Reward multiplier process")
-  } else if (message === 'StopAutoReward') {
-    chrome.alarms.clear("ActivateRewardMultiplier");
-    sendResponse("Auto Reward multiplier process terminated")
   } else if (message === 'ReloadTab') {
     const tabID = sender.tab.id
     chrome.tabs.reload(tabID);
@@ -135,82 +111,5 @@ function clickFreeRollButton() {
         console.log("Response :", response)
       }))
     }
-  }
-}
-
-function activateRewardPointMultiplier() {
-  //check for reward point count down
-  let rewardPointsCountdown = document.getElementById("bonus_span_free_points")
-  let click = true
-  if (rewardPointsCountdown) {
-    let rewardPointsCountdownTime = rewardPointsCountdown.innerText.split(":");
-    let timeToWaitForRewardMultiplier = 0;
-    timeToWaitForRewardMultiplier += parseInt(rewardPointsCountdownTime[0].replace(/\D/g, '')) * 60
-    timeToWaitForRewardMultiplier += parseInt(rewardPointsCountdownTime[1].replace(/\D/g, ''))
-    timeToWaitForRewardMultiplier += parseInt(rewardPointsCountdownTime[2].replace(/\D/g, '')) / 60
-    // timeToWaitForRewardMultiplier will be 0 when it's time out but the page is not refreshed yet
-    click = timeToWaitForRewardMultiplier === 0
-    timeToWaitForRewardMultiplier += (10 / 60)
-    let now = new Date();
-    console.log("Reward Multiplier is already activated at:", now.toUTCString())
-    console.log("Time to wait for next reward activation = " + timeToWaitForRewardMultiplier)
-    chrome.storage.sync.set({timeToWaitForRewardMultiplier});
-  }
-  if (click) {
-    async function delay(callback, timer) {
-      return new Promise(function (resolve) {
-        setTimeout(function () {
-          return resolve(callback())
-        }, timer)
-      })
-    }
-
-    async function wait(callback, timer) {
-      return new Promise(function (resolve) {
-        let interval = setInterval(function () {
-          if (callback()) {
-            clearInterval(interval)
-            return resolve()
-          }
-        }, timer)
-      })
-    }
-
-    function getElem(className, index) {
-      return document.getElementsByClassName(className)[index]
-    }
-
-    function isButtonLoad() {
-      return Boolean(getElem('reward_link_redeem_button_style', 75))
-    }
-
-    async function run() {
-      console.log("Going to reward page")
-      await delay(function () {
-        getElem('rewards_link', 0).click()
-      }, 1000)
-      console.log("Get reward multiplier drop down")
-      await delay(function () {
-        getElem("reward_category_name", 5).click()
-      }, 1000)
-      console.log("Wait for the * 100 multiplier to appear and click it")
-      await wait(isButtonLoad, 1000)
-      if (getElem("reward_link_redeem_button_style", 75).attributes.onclick.value.includes("RedeemRPProduct('free_points_100')")) {
-        console.log("Clicking on the reward multiplier ")
-        await delay(function () {
-          getElem("reward_link_redeem_button_style", 75).click()
-        }, 1000)
-      }
-      console.log("Going back to free roll page")
-      await delay(function () {
-        getElem("free_play_link", 0).click()
-      }, 1000)
-    }
-
-    run().then()
-    let now = new Date();
-    console.log("Redeem Reward Multiplier at : ", now.toUTCString())
-    let timeToWaitForRewardMultiplier = 24 * 60 + (10 / 60)
-    chrome.storage.sync.set({timeToWaitForRewardMultiplier});
   }
 }

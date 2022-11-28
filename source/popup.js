@@ -1,8 +1,5 @@
 let startAutoClick = document.getElementById("startAutoClick");
 let stopAutoClick = document.getElementById("stopAutoClick");
-let startAutoReward = document.getElementById("startAutoReward");
-let stopAutoReward = document.getElementById("stopAutoReward");
-let reloadTab = document.getElementById("reloadTab");
 
 startAutoClick.addEventListener("click", async () => {
   let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
@@ -20,31 +17,6 @@ stopAutoClick.addEventListener("click", async () => {
   });
 });
 
-startAutoReward.addEventListener("click", async () => {
-  let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-  chrome.scripting.executeScript({
-    target: {tabId: tab.id},
-    function: sendStartAutoRewardCommand,
-  });
-});
-
-stopAutoReward.addEventListener("click", async () => {
-  let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-  chrome.scripting.executeScript({
-    target: {tabId: tab.id},
-    function: sendDeleteAutoRewardAlarmCommand,
-  });
-});
-
-reloadTab.addEventListener("click", async () => {
-  let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-  chrome.scripting.executeScript({
-    target: {tabId: tab.id},
-    function: sendReloadCommand,
-  });
-});
-
-
 function sendDeleteAlarmCommand() {
   console.log("Sending Delete Alarm Command")
   chrome.runtime.sendMessage("StopAutoClick", (response => {
@@ -58,24 +30,3 @@ function sendStartAutoClickCommand() {
     console.log("Response :", response)
   }))
 }
-
-function sendDeleteAutoRewardAlarmCommand() {
-  console.log("Sending Delete Alarm Command")
-  chrome.runtime.sendMessage("StopAutoReward", (response => {
-    console.log("Response :", response)
-  }))
-}
-
-function sendStartAutoRewardCommand() {
-  console.log("Sending tabID to start Auto Click")
-  chrome.runtime.sendMessage("StartAutoReward", (response => {
-    console.log("Response :", response)
-  }))
-}
-function sendReloadCommand() {
-  console.log("Sending tabID to reload the tab")
-  chrome.runtime.sendMessage("ReloadTab", (response => {
-    console.log("Response :", response)
-  }))
-}
-
