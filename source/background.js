@@ -130,6 +130,10 @@ function clickFreeRollButton() {
       let timeToWaitForFreeRoll = 10 / 60
       console.log("timeToWaitForFreeRoll:", timeToWaitForFreeRoll)
       chrome.storage.sync.set({timeToWaitForFreeRoll});
+      console.log("Send ReloadTab command")
+      chrome.runtime.sendMessage("ReloadTab", (response => {
+        console.log("Response :", response)
+      }))
     }
   }
 }
