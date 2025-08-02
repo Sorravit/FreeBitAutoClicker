@@ -1,0 +1,29 @@
+{
+  "name": "freebit-autoclicker-tests",
+  "version": "1.2.0",
+  "description": "Test suite for FreeBit Auto Clicker Chrome Extension",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint test/ source/",
+    "lint:fix": "eslint test/ source/ --fix"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "@types/jest": "^27.5.2",
+    "eslint": "^8.57.0",
+    "jest": "^27.5.1",
+    "jest-environment-jsdom": "^27.5.1",
+    "jest-chrome": "^0.8.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/test/setup.js"],
+    "testMatch": ["<rootDir>/test/**/*.test.js"],
+    "collectCoverageFrom": [
+      "source/**/*.js",
+      "!source/**/*.min.js"
+    ]
+  }
+}

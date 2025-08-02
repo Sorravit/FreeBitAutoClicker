@@ -1,10 +1,33 @@
-<html>
-<script type="text/javascript">
-	function logTimeNow(){
-		var now = new Date();
-		console.log(now.toUTCString());
-	}
-</script>
-Hello
-<button onclick="logTimeNow()" id="free_play_form_button">CLick here</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Button Click Simulation</title>
+</head>
+<body>
+    <!-- Mock FreeBit.co.in page elements for testing -->
+    <button id="free_play_form_button" style="position: absolute; left: 100px;">
+        Free Roll
+    </button>
+
+    <div id="time_remaining">60
+
+10
+</div>
+
+    <button id="play_without_captchas_button" style="display: none;">
+        Play Without Captcha
+    </button>
+
+    <!-- Test buttons for popup functionality -->
+    <button id="startAutoClick">Start Auto Click</button>
+    <button id="stopAutoClick">Stop Auto Click</button>
+
+    <!-- Test form for options -->
+    <form>
+        <input type="radio" name="haveCaptcha" value="true"> I have to solve captcha
+        <input type="radio" name="haveCaptcha" value="false" checked> I don't have to solve captcha
+    </form>
+</body>
 </html>

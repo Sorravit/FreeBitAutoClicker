@@ -1,0 +1,38 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "jest": true,
+    "webextensions": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "globals": {
+    "chrome": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "no-console": "off",
+    "semi": ["error", "always"],
+    "quotes": ["error", "double"],
+    "indent": ["error", 2]
+  },
+  "overrides": [
+    {
+      "files": ["test/**/*.js"],
+      "env": {
+        "jest": true
+      },
+      "globals": {
+        "createMockDOM": "readonly",
+        "chrome": "readonly"
+      }
+    }
+  ]
+}
+

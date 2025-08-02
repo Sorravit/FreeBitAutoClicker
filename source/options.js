@@ -20,3 +20,9 @@ function saveCaptchaSetting(event) {
   let haveCaptcha = event.target.value
   chrome.storage.sync.set({haveCaptcha})
 }
+
+// Make functions globally accessible for testing coverage
+if (typeof global !== 'undefined') {
+  global.displayCaptchaSetting = displayCaptchaSetting;
+  global.saveCaptchaSetting = saveCaptchaSetting;
+}

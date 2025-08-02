@@ -30,3 +30,9 @@ function sendStartAutoClickCommand() {
     console.log("Response :", response)
   }))
 }
+
+// Make functions globally accessible for testing
+if (typeof global !== 'undefined') {
+  global.sendStartAutoClickCommand = sendStartAutoClickCommand;
+  global.sendDeleteAlarmCommand = sendDeleteAlarmCommand;
+}

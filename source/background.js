@@ -113,3 +113,10 @@ function clickFreeRollButton() {
     }
   }
 }
+
+// Make functions globally accessible for testing coverage
+if (typeof global !== 'undefined') {
+  global.storageSyncGetAsync = storageSyncGetAsync;
+  global.executeScriptAsync = executeScriptAsync;
+  global.clickFreeRollButton = clickFreeRollButton;
+}
