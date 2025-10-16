@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeBit.co.in - Mock Test Site</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .free-roll-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .free-roll-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .balance-display {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        #free_play_form_button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+            margin: 15px 0;
+        }
+
+        #free_play_form_button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.6);
+        }
+
+        #free_play_form_button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .countdown-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        #time_remaining {
+            font-size: 2em;
+            font-weight: bold;
+            color: #d63031;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            line-height: 1.2;
+        }
+
+        .countdown-label {
+            color: #856404;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #play_without_captchas_button {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            display: none;
+        }
+
+        #play_without_captchas_button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0,184,148,0.4);
+        }
+
+        .captcha-section {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .status-log {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 200px;
+            overflow-y: scroll;
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn {
+            background: #74b9ff;
+            color: white;
+        }
+
+        .toggle-btn {
+            background: #fdcb6e;
+            color: #333;
+        }
+
+        .simulate-btn {
+            background: #a29bfe;
+            color: white;
+        }
+
+        .info-section {
+            background: #f1f3f4;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .info-title {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            position: absolute;
+            left: -10000px;
+            visibility: hidden;
+        }
+
+        .visible {
+            position: static;
+            visibility: visible;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulsing {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🪙 FreeBit.co.in</div>
+            <div class="tagline">Mock Test Site for Auto-Clicker Plugin</div>
+        </div>
+
+        <div class="balance-display">
+            Current Balance: <span id="balance">0.00000000</span> BTC
+        </div>
+
+        <div class="free-roll-section">
+            <div class="free-roll-title">🎲 FREE BTC ROLL</div>
+            <p>Click the button below to roll for free Bitcoin!</p>
+
+            <!-- Wrap button in form to match real website structure and prevent page reload -->
+            <form id="free_play_form" onsubmit="return false;">
+                <input type="button" value="ROLL!" id="free_play_form_button" class="free_play_element new_button_style profile_page_button_style" style="display: inline-block;">
+            </form>
+
+            <div class="captcha-section" id="captcha_section" style="display: none;">
+                <h3>🤖 Captcha Challenge</h3>
+                <p>Complete the captcha to continue</p>
+                <button id="play_without_captchas_button">
+                    ⚡ Play Without Captcha
+                </button>
+            </div>
+        </div>
+
+        <div class="countdown-section" id="countdown_section" style="display: none;">
+            <div class="countdown-label">⏰ Time until next free roll:</div>
+            <div id="time_remaining">59
+
+10</div>
+            <div style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                <div style="display: inline-block; margin: 0 20px;">
+                    <div style="font-size: 2em; font-weight: bold;">Minutes</div>
+                </div>
+                <div style="display: inline-block; margin: 0 20px;">
+                    <div style="font-size: 2em; font-weight: bold;">Seconds</div>
+                </div>
+            </div>
+            <p>Please wait for the countdown to finish before rolling again.</p>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn reset-btn" onclick="resetToRollState()">
+                🔄 Reset to Roll State
+            </button>
+            <button class="control-btn toggle-btn" onclick="toggleCaptcha()">
+                🤖 Toggle Captcha Mode
+            </button>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                <input type="number" id="countdown_minutes" min="0" max="999" value="5"
+                       style="width: 60px; padding: 8px; border-radius: 5px; border: 1px solid #ccc; text-align: center;">
+                <span style="font-weight: bold;">min</span>
+                <input type="number" id="countdown_seconds" min="0" max="59" value="30"
+                       style="width: 60px; padding: 8px; border-radius: 5px; border: 1px solid #ccc; text-align: center;">
+                <span style="font-weight: bold;">sec</span>
+                <button class="control-btn simulate-btn" onclick="simulateCountdownWithInputs()">
+                    ⏱️ Simulate Countdown
+                </button>
+            </div>
+        </div>
+
+        <div class="status-log" id="status_log">
+            === FreeBit Mock Site Status Log ===<br>
+            Site loaded successfully. Ready for auto-clicker testing.<br>
+        </div>
+
+        <div class="info-section">
+            <div class="info-title">📋 Testing Instructions:</div>
+            <ul>
+                <li><strong>Install your extension</strong> and navigate to this page</li>
+                <li><strong>Click "Start Auto Click"</strong> in your extension popup</li>
+                <li>Watch the extension automatically click the free roll button</li>
+                <li>Use the control buttons above to test different scenarios</li>
+                <li>Monitor the status log for debugging information</li>
+            </ul>
+
+            <div class="info-title">🔧 Key Elements for Plugin:</div>
+            <ul>
+                <li><code>free_play_form_button</code> - Main roll button (visibility controlled by CSS)</li>
+                <li><code>time_remaining</code> - Countdown timer with format: minutes\n\nseconds</li>
+                <li><code>play_without_captchas_button</code> - Captcha bypass button</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let balance = 0.00000000;
+        let countdownInterval;
+        let hasCaptcha = false;
+        let isRolling = false;
+
+        function log(message) {
+            const statusLog = document.getElementById('status_log');
+            const timestamp = new Date().toLocaleTimeString();
+            statusLog.innerHTML += `[${timestamp}] ${message}<br>`;
+            statusLog.scrollTop = statusLog.scrollHeight;
+        }
+
+        function updateBalance() {
+            const randomWin = (Math.random() * 0.00000100).toFixed(8);
+            balance = (parseFloat(balance) + parseFloat(randomWin)).toFixed(8);
+            document.getElementById('balance').textContent = balance;
+            return randomWin;
+        }
+
+        function showRollButton() {
+            const button = document.getElementById('free_play_form_button');
+            button.style.display = 'inline-block';
+
+            document.getElementById('countdown_section').style.display = 'none';
+            document.getElementById('captcha_section').style.display = 'none';
+            log('✅ Roll button is now visible (display: inline-block)');
+        }
+
+        function hideRollButton() {
+            const button = document.getElementById('free_play_form_button');
+            button.style.display = 'none';
+            log('❌ Roll button is hidden (display: none) - matches real website behavior');
+        }
+
+        function startCountdown(minutes = 60, seconds = 10) {
+            // Clear any existing countdown interval first to prevent overlapping timers
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            hideRollButton();
+            document.getElementById('countdown_section').style.display = 'block';
+
+            let totalSeconds = minutes * 60 + seconds;
+
+            function updateCountdown() {
+                const mins = Math.floor(totalSeconds / 60);
+                const secs = totalSeconds % 60;
+
+                // CRITICAL: Format must match EXACTLY what the plugin expects to prevent NaN errors
+                // Plugin expects: timeString[0] = minutes, timeString[2] = seconds
+                // This means we need: "minutes\n\nseconds" (with empty line in between)
+                const formattedTime = `${mins}\n\n${secs}`;
+                document.getElementById('time_remaining').textContent = formattedTime;
+
+                // Add debug logging to help troubleshoot parsing issues
+                log(`⏱️ Timer format: "${mins}\\n\\n${secs}" (mins=${mins}, secs=${secs})`);
+
+                if (totalSeconds <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    showRollButton();
+                    log('⏰ Countdown finished! Roll button is available again.');
+                    return;
+                }
+
+                totalSeconds--;
+            }
+
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+            log(`⏱️ Started countdown: ${minutes}m ${seconds}s`);
+        }
+
+        function handleRollClick(event) {
+            // Prevent form submission that causes page reload
+            if (event) {
+                event.preventDefault();
+            }
+
+            // Check if button is disabled or countdown is active
+            const button = document.getElementById('free_play_form_button');
+            const countdownSection = document.getElementById('countdown_section');
+
+            if (isRolling) {
+                log('⚠️ Roll already in progress, ignoring click');
+                return;
+            }
+
+            if (button.disabled || countdownSection.style.display !== 'none') {
+                log('⚠️ Button is disabled or countdown is active, ignoring click');
+                return;
+            }
+
+            isRolling = true;
+            button.classList.add('pulsing');
+            button.value = '🎲 Rolling...';
+
+            log('🎯 Free roll button clicked!');
+
+            // Show captcha if enabled
+            if (hasCaptcha) {
+                document.getElementById('captcha_section').style.display = 'block';
+                document.getElementById('play_without_captchas_button').style.display = 'inline-block';
+                log('🤖 Captcha challenge appeared');
+
+                // Auto-hide captcha after 2 seconds if not clicked
+                setTimeout(() => {
+                    if (document.getElementById('captcha_section').style.display !== 'none') {
+                        document.getElementById('captcha_section').style.display = 'none';
+                        proceedWithRoll();
+                    }
+                }, 2000);
+            } else {
+                // No captcha, proceed directly
+                setTimeout(proceedWithRoll, 1000);
+            }
+        }
+
+        function proceedWithRoll() {
+            const winAmount = updateBalance();
+            log(`💰 You won ${winAmount} BTC!`);
+
+            // Reset button appearance
+            const button = document.getElementById('free_play_form_button');
+            button.classList.remove('pulsing');
+            button.value = 'ROLL!';
+
+            // Start countdown for next roll
+            startCountdown(60, 10);
+            isRolling = false;
+        }
+
+        function handleCaptchaBypass() {
+            log('⚡ Captcha bypassed!');
+            document.getElementById('captcha_section').style.display = 'none';
+            document.getElementById('play_without_captchas_button').style.display = 'none';
+            setTimeout(proceedWithRoll, 500);
+        }
+
+        // Control functions for testing
+        function resetToRollState() {
+            clearInterval(countdownInterval);
+            showRollButton();
+            isRolling = false;
+            const button = document.getElementById('free_play_form_button');
+            button.classList.remove('pulsing');
+            button.value = 'ROLL!';
+            document.getElementById('captcha_section').style.display = 'none';
+            log('🔄 Reset to roll state - ready for testing');
+        }
+
+        function toggleCaptcha() {
+            hasCaptcha = !hasCaptcha;
+            const btn = event.target;
+            btn.value = hasCaptcha ? '🤖 Captcha: ON' : '🤖 Captcha: OFF';
+            btn.style.background = hasCaptcha ? '#e17055' : '#fdcb6e';
+            log(`🤖 Captcha mode: ${hasCaptcha ? 'ENABLED' : 'DISABLED'}`);
+        }
+
+        function simulateCountdown() {
+            log('⏱️ Simulating countdown scenario...');
+            startCountdown(5, 30); // Short countdown for testing
+        }
+
+        function simulateCountdownWithInputs() {
+            const minutes = parseInt(document.getElementById('countdown_minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('countdown_seconds').value) || 0;
+            log(`⏱️ Simulating countdown: ${minutes} minutes, ${seconds} seconds`);
+            startCountdown(minutes, seconds);
+        }
+
+        // Event listeners
+        document.getElementById('free_play_form_button').addEventListener('click', handleRollClick);
+        document.getElementById('play_without_captchas_button').addEventListener('click', handleCaptchaBypass);
+
+        // Initialize
+        log('🚀 FreeBit Mock Site initialized');
+        log('🔧 All plugin elements are ready for testing');
+
+        // Monitor for extension interactions
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    const target = mutation.target;
+                    if (target.id === 'free_play_form_button') {
+                        const isVisible = target.offsetLeft > 0;
+                        log(`👁️ Button visibility changed: ${isVisible ? 'VISIBLE' : 'HIDDEN'} (offsetLeft: ${target.offsetLeft})`);
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.getElementById('free_play_form_button'), {
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+
+        // Simulate some activity for realism
+        setInterval(() => {
+            if (Math.random() < 0.1) { // 10% chance every 5 seconds
+                const activities = [
+                    '🌐 Server ping: 45ms',
+                    '📊 Users online: ' + Math.floor(Math.random() * 1000 + 500),
+                    '💱 BTC price: $' + (Math.random() * 50000 + 30000).toFixed(2),
+                    '🔄 Auto-refresh check...'
+                ];
+                log(activities[Math.floor(Math.random() * activities.length)]);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
