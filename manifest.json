@@ -1,7 +1,7 @@
 {
   "name": "FreeBit Auto Clicker",
   "description": "Auto roll in freebitco.in website every hour",
-  "version": "1.2",
+  "version": "1.3",
   "manifest_version": 3,
   "background": {
     "service_worker": "backgroundWrapper.js"

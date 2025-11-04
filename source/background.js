@@ -38,7 +38,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Get message '", message, "' from tab id ", sender.tab.id);
+  const tabId = sender?.tab?.id ?? "I know there's no tabId";
+  console.log("Get message '", message, "' from tab id", tabId);
   if (message === 'StartAutoClick') {
     const tabID = sender.tab.id
     chrome.storage.sync.set({tabID});
@@ -55,6 +56,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const tabID = sender.tab.id
     chrome.tabs.reload(tabID);
     sendResponse("Tab Reloaded")
+  } else if (message === 'GetCountdown' || (message && message.type === 'GetCountdown')) {
+    chrome.alarms.get('ClickFreeRollButton', (alarm) => {
+      if (alarm) {
+        sendResponse({
+          scheduledTime: alarm.scheduledTime,
+          scheduledTimeUTC: new Date(alarm.scheduledTime).toUTCString(),
+          timeLeft: Math.floor((alarm.scheduledTime - Date.now()) / 1000),
+        });
+      } else {
+        sendResponse({
+          error: 'No ClickFreeRollButton alarm is scheduled.',
+          timeLeft: 0,
+        });
+      }
+    });
+    return true; // IMPORTANT: keep the message channel open for async sendResponse
   }
 });
 
@@ -80,11 +97,15 @@ function clickFreeRollButton() {
     button.click()
     let now = new Date();
     console.log("Clicked Free roll at:", now.toUTCString())
-    let timeToWaitForFreeRoll = 60 + (10 / 60)
+    // let timeToWaitForFreeRoll = 60 + (10 / 60)
+    // chrome.storage.sync.set({timeToWaitForFreeRoll});
+    console.log("wait 20 sec then try again in case it failed")
+    let timeToWaitForFreeRoll = 20 / 60
+    console.log("timeToWaitForFreeRoll:", timeToWaitForFreeRoll)
     chrome.storage.sync.set({timeToWaitForFreeRoll});
   } else {
     try {
-      //Check remaining time and wait for it
+      //Check the remaining time and wait for it
       let timeString = document.getElementById("time_remaining").innerText.split("\n");
       let timeToWaitForFreeRoll = parseInt(timeString[0]) + parseInt(timeString[2]) / 60 + 10 / 60
       let now = new Date();
