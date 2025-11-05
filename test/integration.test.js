@@ -77,12 +77,50 @@ describe('Integration Tests - Component Interactions', () => {
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
-      // Simulate the background message handler
-      const messageListener = chrome.runtime.onMessage.addListener.mock.calls[0][0];
+      // Debug: Check what message listeners were registered
+      const addListenerCalls = chrome.runtime.onMessage.addListener.mock.calls;
+      if (addListenerCalls.length === 0) {
+        throw new Error('No message listeners were registered');
+      }
+      
+      // Try all registered message listeners to find the background handler
+      const listeners = addListenerCalls.map(call => call[0]).filter(fn => typeof fn === 'function');
       const mockSender = { tab: { id: 456 } };
       const mockSendResponse = jest.fn();
 
-      messageListener('StopAutoClick', mockSender, mockSendResponse);
+      if (listeners.length === 0) {
+        throw new Error('No functional message listeners were registered');
+      }
+
+      // Check initial state
+      const clearCallsBefore = chrome.alarms.clear.mock.calls.length;
+
+      // Add debug logging inside the message handler
+      let debugCalled = false;
+      const originalClear = chrome.alarms.clear;
+      chrome.alarms.clear = jest.fn((...args) => {
+        debugCalled = true;
+        return originalClear(...args);
+      });
+
+      // Invoke each listener with StopAutoClick to trigger the correct one
+      for (const listener of listeners) {
+        try {
+          listener('StopAutoClick', mockSender, mockSendResponse);
+        } catch (e) {
+          // ignore listeners that might expect different args
+        }
+      }
+
+      // Check final state
+      const clearCallsAfter = chrome.alarms.clear.mock.calls.length;
+      const responseCallsAfter = mockSendResponse.mock.calls.length;
+
+      // If calls didn't happen, throw error with debug info
+      if (clearCallsAfter === 0) {
+        const types = addListenerCalls.map(call => typeof call[0]);
+        throw new Error(`chrome.alarms.clear was not called. Before: ${clearCallsBefore}, After: ${clearCallsAfter}. Response calls: ${responseCallsAfter}. Listener types: ${JSON.stringify(types)}. Debug called: ${debugCalled}`);
+      }
 
       expect(chrome.alarms.clear).toHaveBeenCalledWith("ClickFreeRollButton");
       expect(mockSendResponse).toHaveBeenCalledWith("Auto click process terminated");
