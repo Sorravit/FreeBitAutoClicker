@@ -2,21 +2,25 @@ let startAutoClick = document.getElementById("startAutoClick");
 let stopAutoClick = document.getElementById("stopAutoClick");
 let countdownDisplay = document.getElementById("countdownDisplay");
 
-startAutoClick.addEventListener("click", async () => {
+async function onStartClick() {
   let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
   await chrome.scripting.executeScript({
     target: {tabId: tab.id},
     function: sendStartAutoClickCommand,
   });
-});
+}
 
-stopAutoClick.addEventListener("click", async () => {
+async function onStopClick() {
   let [tab] = await chrome.tabs.query({active: true, currentWindow: true});
   await chrome.scripting.executeScript({
     target: {tabId: tab.id},
     function: sendDeleteAlarmCommand,
   });
-});
+}
+
+if (startAutoClick) startAutoClick.addEventListener("click", onStartClick);
+
+if (stopAutoClick) stopAutoClick.addEventListener("click", onStopClick);
 
 function sendDeleteAlarmCommand() {
   console.log("Sending Delete Alarm Command")
@@ -33,6 +37,11 @@ function sendStartAutoClickCommand() {
 }
 
 function updateCountdownDisplay(timeLeft) {
+  if (!countdownDisplay) {
+    // Lazily resolve in case DOM was not ready at module load (useful for tests and robustness)
+    countdownDisplay = document.getElementById("countdownDisplay");
+    if (!countdownDisplay) return;
+  }
   countdownDisplay.textContent = timeLeft > 0
     ? `Next click in: ${formatTime(timeLeft)}`
     : "No Auto Click Running";
@@ -45,12 +54,13 @@ function formatTime(seconds) {
 }
 
 // Request countdown when popup opens
-chrome.runtime.sendMessage("GetCountdown", (response) => {
+function handleInitialCountdownResponse(response) {
   console.log("Response :", response)
   if (response && typeof response.timeLeft === "number") {
     updateCountdownDisplay(response.timeLeft);
   }
-});
+}
+chrome.runtime.sendMessage("GetCountdown", handleInitialCountdownResponse);
 
 // Listen for countdown updates
 chrome.runtime.onMessage.addListener((message) => {
@@ -63,4 +73,12 @@ chrome.runtime.onMessage.addListener((message) => {
 if (typeof global !== 'undefined') {
   global.sendStartAutoClickCommand = sendStartAutoClickCommand;
   global.sendDeleteAlarmCommand = sendDeleteAlarmCommand;
+  // Expose UI helpers for deterministic testing
+  global.updateCountdownDisplay = updateCountdownDisplay;
+  global.formatTime = formatTime;
+  // Expose click handlers for deterministic testing
+  global.onStartClick = onStartClick;
+  global.onStopClick = onStopClick;
+  // Expose initial countdown response handler for testing
+  global.handleInitialCountdownResponse = handleInitialCountdownResponse;
 }

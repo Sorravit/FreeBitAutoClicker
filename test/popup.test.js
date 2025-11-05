@@ -133,6 +133,40 @@ describe('Popup functionality', () => {
   });
 
   describe('Event listener tests', () => {
+    test('should update countdown via initial GetCountdown response callback', async () => {
+      // Prepare DOM for countdown display
+      document.body.innerHTML = `
+        <div id="countdownDisplay"></div>
+      `;
+      const display = document.getElementById('countdownDisplay');
+
+      // Load the popup script (which registers the handler we will call)
+      delete require.cache[require.resolve('../source/popup.js')];
+      require('../source/popup.js');
+
+      // Call the exposed handler directly
+      global.handleInitialCountdownResponse({ timeLeft: 5 });
+
+      await new Promise(r => setTimeout(r, 0));
+      expect(display.textContent).toBe('Next click in: 0:05');
+    });
+
+    test('should trigger stop flow and execute script on active tab', async () => {
+      // Setup mocks and call handler directly
+      chrome.tabs.query.mockResolvedValueOnce([{ id: 777 }]);
+      chrome.scripting.executeScript.mockClear();
+
+      delete require.cache[require.resolve('../source/popup.js')];
+      require('../source/popup.js');
+
+      await global.onStopClick();
+
+      expect(chrome.tabs.query).toHaveBeenCalledWith({ active: true, currentWindow: true });
+      expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
+        target: { tabId: 777 },
+        function: expect.any(Function)
+      });
+    });
     test('should verify event listeners are attached', () => {
       delete require.cache[require.resolve('../source/popup.js')];
       require('../source/popup.js');
@@ -159,5 +193,6 @@ describe('Popup functionality', () => {
       // At minimum, verify no errors occurred
       expect(true).toBe(true);
     });
+
   });
 });

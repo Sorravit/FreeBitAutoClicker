@@ -125,6 +125,43 @@ describe('Background Service Worker', () => {
       // Should not crash and not call any Chrome APIs for unknown messages
       expect(mockSendResponse).not.toHaveBeenCalled();
     });
+
+    test('should handle GetCountdown when alarm exists and return true', () => {
+      const mockSender = { tab: { id: 456 } };
+      const mockSendResponse = jest.fn();
+
+      // Mock chrome.alarms.get to immediately invoke callback with an alarm
+      const now = Date.now();
+      chrome.alarms.get = jest.fn((name, cb) => cb({ scheduledTime: now + 5000 }));
+
+      const ret = messageListener('GetCountdown', mockSender, mockSendResponse);
+      expect(ret).toBe(true); // handler returns true to keep the channel open
+
+      // Verify sendResponse received expected fields
+      expect(mockSendResponse).toHaveBeenCalledWith(
+        expect.objectContaining({
+          scheduledTime: now + 5000,
+          scheduledTimeUTC: expect.any(String),
+          timeLeft: expect.any(Number)
+        })
+      );
+    });
+
+    test('should handle GetCountdown when no alarm exists', () => {
+      const mockSender = { tab: { id: 456 } };
+      const mockSendResponse = jest.fn();
+
+      // Mock chrome.alarms.get to return null
+      chrome.alarms.get = jest.fn((name, cb) => cb(null));
+
+      const ret = messageListener('GetCountdown', mockSender, mockSendResponse);
+      expect(ret).toBe(true);
+
+      expect(mockSendResponse).toHaveBeenCalledWith({
+        error: 'No ClickFreeRollButton alarm is scheduled.',
+        timeLeft: 0,
+      });
+    });
   });
 
   describe('Alarm handling', () => {
@@ -154,6 +191,25 @@ describe('Background Service Worker', () => {
         periodInMinutes: expect.any(Number)
       });
     }, 10000);
+
+    test('should reset alarm using stored timeToWaitForFreeRoll value', async () => {
+      // Override storage getter to return a custom period for timeToWaitForFreeRoll
+      chrome.storage.sync.get.mockImplementation((key, callback) => {
+        const mockData = {
+          timeToWaitForFreeRoll: 1.23,
+          tabID: 999
+        };
+        if (key === 'tabID') callback({ tabID: mockData.tabID });
+        else if (key === 'timeToWaitForFreeRoll') callback({ timeToWaitForFreeRoll: mockData.timeToWaitForFreeRoll });
+        else callback(mockData);
+      });
+
+      const mockAlarm = { name: 'ClickFreeRollButton' };
+      await alarmListener(mockAlarm);
+
+      // Assert the new alarm uses the exact stored value
+      expect(chrome.alarms.create).toHaveBeenCalledWith('ClickFreeRollButton', { periodInMinutes: 1.23 });
+    });
 
     test('should ignore unknown alarms', async () => {
       const mockAlarm = { name: 'UnknownAlarm' };
@@ -196,6 +252,29 @@ describe('Background Service Worker', () => {
       }
     });
 
+    test('should click captcha button when haveCaptcha is true', () => {
+      // DOM includes both main button and captcha button
+      document.body.innerHTML = `
+        <button id="free_play_form_button" style="position: absolute; left: 100px;">Free Roll</button>
+        <button id="play_without_captchas_button">No Captcha</button>
+      `;
+      const button = document.getElementById('free_play_form_button');
+      Object.defineProperty(button, 'offsetLeft', { value: 100 });
+      const captchaBtn = document.getElementById('play_without_captchas_button');
+      const captchaClickSpy = jest.spyOn(captchaBtn, 'click');
+
+      // Force haveCaptcha === "true"
+      chrome.storage.sync.get.mockImplementation((key, callback) => {
+        if (key === 'haveCaptcha') callback({ haveCaptcha: 'true' });
+        else callback({});
+      });
+
+      if (typeof global.clickFreeRollButton === 'function') {
+        global.clickFreeRollButton();
+        expect(captchaClickSpy).toHaveBeenCalled();
+      }
+    });
+
     test('should execute clickFreeRollButton with hidden button', () => {
       // Set up DOM for hidden button scenario
       document.body.innerHTML = `
@@ -215,6 +294,26 @@ describe('Background Service Worker', () => {
         expect(chrome.storage.sync.set).toHaveBeenCalledWith({
           timeToWaitForFreeRoll: expect.any(Number)
         });
+      }
+    });
+
+    test('should handle NaN time parsing and send ReloadTab', () => {
+      document.body.innerHTML = `
+        <button id=\"free_play_form_button\" style=\"position: absolute; left: 0px;\">Free Roll</button>
+        <div id=\"time_remaining\">NaN\nminutes\nNaN\nseconds</div>
+      `;
+      const button = document.getElementById('free_play_form_button');
+      Object.defineProperty(button, 'offsetLeft', { value: 0 });
+
+      const timeElement = document.getElementById('time_remaining');
+      Object.defineProperty(timeElement, 'innerText', { value: 'NaN\nminutes\nNaN\nseconds' });
+
+      const sendMessageSpy = chrome.runtime.sendMessage;
+
+      if (typeof global.clickFreeRollButton === 'function') {
+        global.clickFreeRollButton();
+        expect(sendMessageSpy).toHaveBeenCalledWith('ReloadTab', expect.any(Function));
+        expect(chrome.storage.sync.set).toHaveBeenCalledWith({ timeToWaitForFreeRoll: 10 / 60 });
       }
     });
 
